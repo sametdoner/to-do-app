@@ -20,9 +20,23 @@ namespace ToDoApp.Controllers
         }
 
         // GET: ToDo
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool showAll=false)
         {
-            var applicationDbContext = _context.TodoItems.Include(t => t.Category);
+
+            /*
+             * var applicationDbContext = _context.TodoItems.Include(t => t.Category)
+             * .Where(t => showall || t.IsCompleted == false).OrderBy(t => t.DueDate);;
+            */
+
+            ViewBag.ShowAll = showAll;
+
+            var applicationDbContext = _context.TodoItems.Include(t => t.Category).AsQueryable();
+            if(!showAll)
+			{
+                applicationDbContext.Where(t => t.IsCompleted == false).OrderBy(t => t.DueDate);
+
+            }
+            applicationDbContext = applicationDbContext.OrderBy(t => t.DueDate); 
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -65,7 +79,7 @@ namespace ToDoApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", todoItem.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", todoItem.CategoryId);
             return View(todoItem);
         }
 
@@ -82,7 +96,7 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", todoItem.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", todoItem.CategoryId);
             return View(todoItem);
         }
 
@@ -118,7 +132,7 @@ namespace ToDoApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", todoItem.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", todoItem.CategoryId);
             return View(todoItem);
         }
 
@@ -150,7 +164,33 @@ namespace ToDoApp.Controllers
             _context.TodoItems.Remove(todoItem);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+		}
+
+		public async Task<IActionResult> MakeComplete(int id, bool showall)
+		{
+			return await ChangeStatus(id, true, showall);
+		}
+
+        public async Task<IActionResult> MakeIncomplete(int id, bool showall)
+        {
+            return await ChangeStatus(id, false, showall);
         }
+
+        private async Task<IActionResult> ChangeStatus(int id, bool status, bool currentShowAll)
+		{
+			var todoItemItem = _context.TodoItems.FirstOrDefault(t => t.Id == id);
+
+			if (todoItemItem == null)
+			{
+				return NotFound();
+			}
+			todoItemItem.IsCompleted = status;
+			todoItemItem.CompletedDate = DateTime.Now;
+			await _context.SaveChangesAsync();
+			return RedirectToAction(nameof(Index), new { showAll = currentShowAll });
+		}
+
+		
 
         private bool TodoItemExists(int id)
         {

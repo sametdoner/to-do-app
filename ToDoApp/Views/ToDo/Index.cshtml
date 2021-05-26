@@ -4,51 +4,94 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>To Do</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">What's Next?</a>
+</p>
+<p>
+    @if (ViewBag.ShowAll)
+    {
+        <a asp-action="Index" asp-route-showAll="false">Show Only Incomplete Tasks</a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-showAll="true">Show All</a>
+    }
+
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsCompleted)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DueDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                @Html.DisplayNameFor(model => model.RemainingHour)
             </th>
-            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsCompleted)
+            </th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Title)
+                @if (item.IsCompleted)
+                {
+                    <del>@Html.DisplayFor(modelItem => item.Category.Name)</del> }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @if (item.IsCompleted)
+                {
+                    <del>@Html.DisplayFor(modelItem => item.Title)</del> }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Title)
+                }
+            </td>
+            <td>
+                @if (item.IsCompleted)
+                {
+                    <del>@Html.DisplayFor(modelItem => item.DueDate)</del> }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.DueDate)
+                }
+            </td>
+            <td>
+                @if (item.IsCompleted)
+                {
+                    <del>@Html.DisplayFor(modelItem => item.RemainingHour)</del> }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.RemainingHour)
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsCompleted)
             </td>
+
             <td>
-                @Html.DisplayFor(modelItem => item.DueDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
-            </td>
-            <td>
+                @if (item.IsCompleted)
+                {
+                    <a asp-action="MakeIncomplete" asp-route-id="@item.Id" asp-route-showall="@ViewBag.ShowAll">Incomplete</a> }
+                else
+                {
+                    <a asp-action="MakeComplete" asp-route-id="@item.Id">Complete</a>
+                }  |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
