@@ -20,9 +20,21 @@ namespace ToDoApp.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(SearchViewModel searchModel)
         {
-            return View(await _context.Categories.ToListAsync());
+            var query = _context.Categories.AsQueryable();
+            if (!String.IsNullOrWhiteSpace(searchModel.SearchText) && (searchModel.SearchDesc == false))
+            {
+                query = query.Where(t => t.Name.Contains(searchModel.SearchText));
+
+            }
+            else if (!String.IsNullOrWhiteSpace(searchModel.SearchText) && searchModel.SearchDesc)
+            {
+                query = query.Where(t => t.Description.Contains(searchModel.SearchText));
+            }
+
+            searchModel.CategoryResult = await query.ToListAsync();
+            return View(searchModel);
         }
 
         // GET: Categories/Details/5

@@ -10,5 +10,9 @@ namespace ToDoApp.Models
 		public bool ShowAll { get; set; }
 
 		public List<TodoItem> Result { get; set; }
+
+		public bool SearchDesc { get; set; }
+
+		public List<Category> CategoryResult { get; set; }
 	}
 }
