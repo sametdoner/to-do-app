@@ -1,8 +1,48 @@
-﻿@{
+﻿@model IEnumerable<ToDoApp.Models.TodoItem>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Todo App</h1>
 </div>
+
+
+@if (!Model.Any()) { // Model.Counte() == 0
+<div class="text-center">
+    <h2>Congrats!! You completed all!</h2>
+</div>
+} else {
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RemainingHour)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RemainingHour)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+}

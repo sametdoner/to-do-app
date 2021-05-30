@@ -20,25 +20,30 @@ namespace ToDoApp.Controllers
         }
 
         // GET: ToDo
-        public async Task<IActionResult> Index(bool showAll=false)
+        public async Task<IActionResult> Index(SearchViewModel searchModel)
         {
 
-            /*
+			/*
              * var applicationDbContext = _context.TodoItems.Include(t => t.Category)
              * .Where(t => showall || t.IsCompleted == false).OrderBy(t => t.DueDate);;
             */
 
-            ViewBag.ShowAll = showAll;
-
-            var applicationDbContext = _context.TodoItems.Include(t => t.Category).AsQueryable();
-            if(!showAll)
+			var query = _context.TodoItems.Include(t => t.Category).AsQueryable();
+			if (!searchModel.ShowAll)
 			{
-                applicationDbContext.Where(t => t.IsCompleted == false).OrderBy(t => t.DueDate);
+				query = query.Where(t => !t.IsCompleted);
 
+			}
+			if (!String.IsNullOrWhiteSpace(searchModel.SearchText))
+			{
+				query = query.Where(t => t.Title.Contains(searchModel.SearchText));
             }
-            applicationDbContext = applicationDbContext.OrderBy(t => t.DueDate); 
-            return View(await applicationDbContext.ToListAsync());
-        }
+
+            query = query.OrderBy(t => t.DueDate);
+            searchModel.Result = await query.ToListAsync();
+
+			return View(searchModel);
+		}
 
         // GET: ToDo/Details/5
         public async Task<IActionResult> Details(int? id)
